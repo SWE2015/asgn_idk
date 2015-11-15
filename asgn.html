@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<style type="text/css">
+	#page{
+		font-size: 13px;
+		line-height: 1.3em;
+/		max-width: 800px;
+/		margin: 20px auto 20px auto;
+/		padding: 35px;
+		background-color: #ffffff;
+		border: 1px solid #dfdfdf;
+/		border-radius: 10px;
+
+	}
+	body {
+		background-color: #efefef;
+	}
+
+	p{
+		text-indent: 2em;
+	}
+
+	.result{
+		line-height: 1.1em;
+		white-space: pre; 
+		border: 1px solid #cbcbcb;
+		border-radius: 15px;
+
+		margin: 20px;
+		padding: 15px;
+
+		font-family: Courier;
+		font-size: 0.9em;
+	}
+
+</style>
+<body>
+
+<div id="page">
+	
+<h1>Unordered List implementation using Templates</h1>
+<span>Onat Bas, SWE501, Assn 3</span>
+
+<h2>Implementation</h2>
+<p>This project is intended to provide an implementation of unordered lists with templates, and
+it is intended to be as small as a single header file, to be portable.</p>
+
+
+
+<h3>List<T> class</h3>
+<p>Lists class has some nice overloads to be easy to use. An example to these is << operator. 
+Similar to the usage if ofstream classes, << is used in this list implementation, tis time to 
+append (or push) elements to the list content
+</p>
+
+<h3>Memory Management</h3>
+<p>Memory allocation in List class is managed by standard C operations, malloc, free etc.
+Standard C operations are used because operations such as realloc guarantee that there won't
+be any data loss under unsuccessful or successful operations.<br/>
+Allocated memory is always allocated in powers of two. If the size required for the next
+item exceeds the limits of the current size, simply the buffer size is doubled to make 
+up more space. Vice versa, if some elements are removed from the list and at least half 
+of the list is empty/not used, this portion of the memory is given back to the os by simply
+diving the allocated mamory in half. </p>
+
+<div class="result">
+// In this example I create a new list of a custom struct called "Student"<br/>
+// and add 5 students in advance and remove them one by one to <br/>
+// monitor the behaviour of the memory allocation algorithm.<br/>
+Onats-MacBook-Pro:asgn_idk onatbas$ ./a.out <br/>
+Size of l: 0<br/>
+Storage size: 1<br/>
+Size of l: 5<br/>
+Storage size: 8<br/>
+Name of 2nd student is : (Beth Ruh).<br/>
+Removed first student. Size of l: 4<br/>
+Storage size: 8<br/>
+Name of first student is : (James Immelt).<br/>
+Removed first student. Size of l: 3<br/>
+Storage size: 4<br/>
+Name of first student is : (Bowden Graham).<br/>
+Removed first student. Size of l: 2<br/>
+Storage size: 4<br/>
+Name of first student is : (Martin Wise).<br/>
+Removed first student. Size of l: 1<br/>
+Storage size: 2<br/>
+Name of first student is : (Beth Ruh).<br/>
+Removed first student. Size of l: 0<br/>
+Storage size: 1<br/>
+
+</div>
+
+<h2>Conclusion</h2>
+<h3>Effectiveness</h3>
+<p>Even though the memory is allocated dynamically, due the he memory being a 
+continuous single block, user gets the benefit of having random access with this 
+structure. Also having  overloading of operator[] gives the user the feel
+of right usage.</p>
+
+<h3>Header-Only</h3>
+<p>Since the code required to use this type of class is template-based, it 
+has to be implemented in header files, mostly. This, in this case, brings the advantage of being
+lightweight and high-portability. There's no linking or no dependendy.</p>
+
+<h3>Result</h3>
+<p>Usage:</p>
+<div class="result">
+<span>$ ./sampler <br/><span>
+<span>usage: ./sampler "birth_count" "population_limit"</span>
+</div>
+
+<h1>Sourcecode: </h1>
+
+<h2>Main</h2>
+
+<div class="result">
+	<h3>main.cxx</h3>
+#include "List.hxx"<br/>#include <iostream><br/>#include <string><br/>#include <cstring><br/><br/>struct Student<br/>{<br/>	char name[20];<br/>	int id;<br/>	int year, month, date; //of birth<br/>	<br/>	Student& operator=(const Student& other) // copy assignment<br/>	{<br/>		memcpy(name, other.name, 20);<br/>		id = other.id;<br/>		year = other.year;<br/>		month = other.month;<br/>		date = other.date;<br/>	}<br/>	<br/>};<br/><br/>Student MakeStudent(<br/>	char* name,<br/>	int id,<br/>	int year, int month, int date)<br/>{<br/>	Student s;<br/>	memcpy(s.name, name, 20);<br/>	s.id = id;<br/>	s.year = year;<br/>	s.month = month;<br/>	s.date = date;<br/>	return s;<br/>}<br/><br/>using namespace std;<br/>int main(int argc, char const *argv[])<br/>{<br/>	List<Student> l;<br/>	cout << "Size of l: " << l.getsize() << endl;<br/>	cout << "Storage size: " << l.getbufsize() << endl;<br/>	<br/>	l << MakeStudent("John Doe", 201512345, 1990, 10, 1) <<<br/>		MakeStudent("Beth Ruh", 120243434, 1980, 3, 27) <<<br/>		MakeStudent("Martin Wise", 120243434, 1980, 3, 27) <<<br/>		MakeStudent("Bowden Graham", 120243434, 1980, 3, 27) <<<br/>		MakeStudent("James Immelt", 122448776, 1988, 8, 7);<br/>		<br/>	cout << "Size of l: " << l.getsize() << endl;<br/>	cout << "Storage size: " << l.getbufsize() << endl;<br/>	cout << "Name of 2nd student is : (" << l[1].name << ")." << endl;<br/>	<br/>	int i = 5;<br/>	while (i-->0)<br/>	{<br/>		l.remove(0);<br/>		cout << "Removed first student. Size of l: " << l.getsize() << endl;<br/>		cout << "Storage size: " << l.getbufsize() << endl;<br/>		cout << "Name of first student is : (" << l[0].name << ")." << endl;<br/>		<br/>	}<br/>	return 0;<br/>}
+</div>
+
+<div class="result">
+	<h3>List.hxx</h3>
+	#pragma once<br/>#include <stdlib.h>   <br/><br/>template <typename T><br/>class List<br/>{<br/>public:<br/>	List(){<br/>		members = 0;<br/>		size = 0;<br/>		bufferSize = 1;<br/>		members = (T*)malloc(16*sizeof(T));<br/>	}<br/><br/>	~List(){<br/>		delete [] members;<br/>	}<br/><br/>   T& operator[](int index)<br/>   {<br/>   		return get(index);<br/>   }<br/><br/>   T& get(int index)<br/>   {<br/>   		if (index >= size)<br/>   			throw "Out of boundaries";<br/>		return members[index];<br/>   }<br/><br/>   int getsize()<br/>   {<br/>   		return size;<br/>   }<br/><br/>   int getbufsize()<br/>   {<br/>   		return bufferSize;<br/>   }<br/><br/><br/>   List<T>& operator<<(const T &value)<br/>   {<br/>   		this->push(value);<br/>   		return *this;<br/>   }<br/><br/>   int push(const T& value)<br/>   {<br/>		while (size >= bufferSize)<br/>   		{<br/>   			bufferSize *= 2;<br/>   			members = (T*)realloc(members, bufferSize*sizeof(T));<br/>   		}<br/><br/>   		members[size] = value;<br/>   		return size++;<br/>   }<br/><br/>   void remove(int index)<br/>   {<br/>   		if (index < 0 || index >= size || size <= 0)<br/>   			return;<br/><br/><br/>   		if (--size != 0)<br/>   			members[index] = members[size];<br/><br/>   		bool reallocate = false;<br/>   		while (size < bufferSize/2)<br/>   		{<br/>   			bufferSize /= 2;<br/>   			reallocate = true;<br/>   		}<br/><br/>   		if (reallocate)<br/>   			members = (T*)realloc(members, bufferSize*sizeof(T));<br/>   }<br/><br/><br/>private:<br/>	int size;<br/>	int bufferSize;<br/>	T* members;<br/>};
+</div>
+
+
+</div>
+</body>
+</html>
