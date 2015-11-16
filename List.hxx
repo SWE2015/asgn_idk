@@ -8,20 +8,20 @@ public:
 	List(){
 		members = 0;
 		size = 0;
-		bufferSize = 1;
-		members = (T*)malloc(16*sizeof(T));
+		bufferSize = 2;
+		members = (T**)malloc(2*sizeof(T*));
 	}
 
 	~List(){
-		delete [] members;
+		free(members);
 	}
 
-   T& operator[](int index)
+   T* operator[](int index)
    {
    		return get(index);
    }
 
-   T& get(int index)
+   T* get(int index)
    {
    		if (index >= size)
    			throw "Out of boundaries";
@@ -38,23 +38,29 @@ public:
    		return bufferSize;
    }
 
-
-   List<T>& operator<<(const T &value)
+   template<typename... Types>
+   int push_new(Types...args)
    {
-   		this->push(value);
-   		return *this;
+      while (size >= bufferSize)
+         {
+            bufferSize *= 2;
+            members = (T**)realloc(members, bufferSize*sizeof(T*));
+         }
+
+         members[size] = new T(args...);
+         return size++;
    }
 
-   int push(const T& value)
+  int push(T* args)
    {
-		while (size >= bufferSize)
-   		{
-   			bufferSize *= 2;
-   			members = (T*)realloc(members, bufferSize*sizeof(T));
-   		}
+      while (size >= bufferSize)
+         {
+            bufferSize *= 2;
+            members = (T**)realloc(members, bufferSize*sizeof(T*));
+         }
 
-   		members[size] = value;
-   		return size++;
+         members[size] = args;
+         return size++;
    }
 
    void remove(int index)
@@ -63,8 +69,10 @@ public:
    			return;
 
 
-   		if (--size != 0)
+   		if (--size != 0){
+            delete members[index];
    			members[index] = members[size];
+         }
 
    		bool reallocate = false;
    		while (size < bufferSize/2)
@@ -74,12 +82,12 @@ public:
    		}
 
    		if (reallocate)
-   			members = (T*)realloc(members, bufferSize*sizeof(T));
+   			members = (T**)realloc(members, bufferSize*sizeof(T*));
    }
 
 
 private:
 	int size;
 	int bufferSize;
-	T* members;
+	T** members;
 };
