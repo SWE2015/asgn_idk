@@ -13,6 +13,8 @@ public:
 	}
 
 	~List(){
+      while(--size >= 0)
+         remove(size);
 		free(members);
 	}
 
