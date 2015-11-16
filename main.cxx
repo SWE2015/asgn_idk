@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <fstream>
 using namespace std;
 
 struct Student
@@ -63,8 +64,20 @@ void tewstWithStudent()
 	}
 }
 
+void testWithFilestreams()
+{
+	auto list = List<ofstream>();
+	list.push_new("MyfirstFile.txt", ofstream::out);
+	list.push_new("MysecondFile.txt", ofstream::out);
+	list.push_new("MyThirdfile.txt", ofstream::out);
+
+	for (int i = 0; i< list.getsize(); i++)
+		*(list[0])<<"This is a bad list";
+}
+
 int main(int argc, char const *argv[])
 {
+	testWithFilestreams();
 	testWithString();
 	tewstWithStudent();
 	return 0;
